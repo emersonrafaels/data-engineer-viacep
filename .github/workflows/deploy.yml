@@ -1,18 +1,20 @@
-name: Deploy Lambda (ViaCEP)
+name: Deploy Lambda (ViaCEP) # Nome do workflow
 
 on:
   push:
     branches:
-      - main
+      - main # O deploy será acionado quando houver um push na branch main
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Em qual máquina virtual o job será executado
 
     steps:
-    - name: Checkout código
+    # Checkout do código
+    - name: Checkout código 
       uses: actions/checkout@v3
 
+    # Configuração das credenciais AWS
     - name: Configurar credenciais AWS
       uses: aws-actions/configure-aws-credentials@v2
       with:
