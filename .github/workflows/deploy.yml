@@ -37,7 +37,7 @@ jobs:
     - name: Verificar segurança do código
       run: |
         source venv/bin/activate
-        bandit -r . --exclude venv,tests
+        bandit -r . --exclude ./venv,./tests
 
     - name: Executar testes
       run: |
