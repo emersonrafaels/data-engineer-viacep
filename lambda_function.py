@@ -1,7 +1,7 @@
 import json
 import logging
 import requests
-import random
+import secrets  # Substituir random por secrets para maior segurança
 
 # Configuração do logger para registrar logs em diferentes níveis (INFO, WARNING, ERROR)
 logger = logging.getLogger()
@@ -55,7 +55,7 @@ def lambda_handler(event, context):
         dict: Resposta HTTP com os dados do CEP ou mensagem de erro.
     """
     # Seleciona aleatoriamente um CEP da lista de CEPs válidos
-    cep = random.choice(CEPS_VALIDOS)
+    cep = secrets.choice(CEPS_VALIDOS)
 
     try:
         # Consulta o CEP utilizando a função consultar_cep

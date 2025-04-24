@@ -2,6 +2,7 @@ import pytest
 import json
 from unittest.mock import patch, MagicMock
 from lambda_function import consultar_cep, lambda_handler, CEPS_VALIDOS
+from pytest import raises
 
 
 def test_consultar_cep_sucesso():
@@ -38,7 +39,7 @@ def test_consultar_cep_erro_http():
         mock_get.side_effect = Exception("Erro na requisição")
 
         # Verifica se a exceção é levantada
-        with pytest.raises(Exception, match="Erro na requisição"):
+        with raises(Exception, match="Erro na requisição"):
             consultar_cep(cep)
 
 
