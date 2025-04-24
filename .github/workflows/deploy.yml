@@ -1,0 +1,32 @@
+name: Deploy Lambda (ViaCEP)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v3
+
+    - name: Instalar dependências
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt -t .
+        zip -r9 lambda_function.zip .
+
+    - name: Deploy na AWS Lambda
+      uses: aws-actions/aws-cli-action@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+        inline-script: |
+          aws lambda update-function-code \
+            --function-name api_viacep \
+            --zip-file fileb://lambda_function.zip
