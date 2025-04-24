@@ -1,7 +1,8 @@
 import json
 import logging
-import requests
 import secrets  # Substituir random por secrets para maior segurança
+
+import requests
 
 # Configuração do logger para registrar logs em diferentes níveis (INFO, WARNING, ERROR)
 logger = logging.getLogger()

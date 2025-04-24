@@ -1,0 +1,23 @@
+# Ignorar diretórios de cache do Python
+__pycache__/
+*.py[cod]
+
+# Ignorar ambientes virtuais
+venv/
+.env/
+
+# Ignorar arquivos de configuração do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Ignorar arquivos de log
+*.log
+
+# Ignorar arquivos de teste de saída
+*.out
+*.err
+
+# Ignorar arquivos de pacotes
+*.egg-info/
+dist/
+build/

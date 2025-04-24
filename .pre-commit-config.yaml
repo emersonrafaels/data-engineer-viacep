@@ -1,0 +1,12 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 23.3.0  # Use a versão mais recente do Black
+    hooks:
+      - id: black
+        args: ["--line-length=88"]  # Configuração opcional para o comprimento da linha
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.12.0  # Use a versão mais recente do isort
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]  # Integração com o estilo do Black

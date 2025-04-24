@@ -1,8 +1,15 @@
-import pytest
 import json
-from unittest.mock import patch, MagicMock
-from lambda_function import consultar_cep, lambda_handler, CEPS_VALIDOS
+import sys
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import pytest
 from pytest import raises
+
+from lambda_function import CEPS_VALIDOS, consultar_cep, lambda_handler
+
+# Adiciona o diretório raiz do projeto ao sys.path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 
 def test_consultar_cep_sucesso():
