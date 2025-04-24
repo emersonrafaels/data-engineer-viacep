@@ -1,5 +1,5 @@
+---
 name: Deploy Lambda (ViaCEP)
-
 on:
   push:
     branches:
@@ -8,60 +8,64 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout código
-      uses: actions/checkout@v3
+      # Checkout do código
+      - name: Checkout código
+        uses: actions/checkout@v3
 
-    - name: Configurar Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
+      # Configuração do Python
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
 
-    - name: Criar ambiente virtual
-      run: |
-        python -m venv venv
-        source venv/bin/activate
-        pip install --upgrade pip
+      # Criar ambiente virtual e instalar dependências
+      - name: Configurar ambiente virtual e instalar dependências
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install flake8 bandit pytest -r requirements.txt
 
-    - name: Instalar dependências
-      run: |
-        source venv/bin/activate
-        pip install flake8 bandit pytest -r requirements.txt
+      # Verificar qualidade do código com flake8
+      - name: Verificar qualidade do código
+        run: |
+          source venv/bin/activate
+          flake8 . --exclude=venv --count --select=E9,F63,F7,F82 --show-source --statistics
 
-    - name: Verificar qualidade do código
-      run: |
-        source venv/bin/activate
-        flake8 . --exclude=venv --count --select=E9,F63,F7,F82 --show-source --statistics
+      # Verificar segurança do código com Bandit
+      - name: Verificar segurança do código
+        run: |
+          source venv/bin/activate
+          bandit -r . --exclude ./venv,./tests
 
-    - name: Verificar segurança do código
-      run: |
-        source venv/bin/activate
-        bandit -r . --exclude ./venv,./tests
+      # Executar testes com pytest
+      - name: Executar testes
+        run: |
+          source venv/bin/activate
+          pytest tests/
 
-    - name: Executar testes
-      run: |
-        source venv/bin/activate
-        pytest tests/
+      # Configurar credenciais AWS
+      - name: Configurar credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Configurar credenciais AWS
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+      # Empacotar aplicação
+      - name: Empacotar aplicação
+        run: |
+          mkdir package
+          pip install -r requirements.txt -t package/
+          cp lambda_function.py package/
+          cd package
+          zip -r9 ../lambda_function.zip .
 
-    - name: Empacotar aplicação
-      run: |
-        mkdir package
-        pip install -r requirements.txt -t package/
-        cp lambda_function.py package/
-        cd package
-        zip -r9 ../lambda_function.zip .
-
-    - name: Fazer deploy na AWS Lambda
-      run: |
-        aws lambda update-function-code \
-          --function-name api_viacep \
-          --zip-file fileb://lambda_function.zip \
-          --publish
+      # Fazer deploy na AWS Lambda
+      - name: Fazer deploy na AWS Lambda
+        run: |
+          aws lambda update-function-code \
+            --function-name api_viacep \
+            --zip-file fileb://lambda_function.zip \
+            --publish

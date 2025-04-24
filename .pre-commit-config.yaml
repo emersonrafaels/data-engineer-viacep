@@ -1,12 +1,54 @@
+---
 repos:
+  # Black: Formata automaticamente o código Python para seguir o padrão PEP 8.
   - repo: https://github.com/psf/black
-    rev: 23.3.0  # Use a versão mais recente do Black
+    rev: 23.3.0
     hooks:
       - id: black
-        args: ["--line-length=88"]  # Configuração opcional para o comprimento da linha
+        args:
+          - "--line-length=88"
 
+  # isort: Organiza e ordena as importações no código Python.
   - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0  # Use a versão mais recente do isort
+    rev: 5.12.0
     hooks:
       - id: isort
-        args: ["--profile", "black"]  # Integração com o estilo do Black
+        args:
+          - "--profile"
+          - "black"
+
+  # Flake8: Verifica a qualidade do código e garante que ele segue as boas práticas do PEP 8.
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        args:
+          - "--max-line-length=88"
+
+  # Bandit: Realiza análises de segurança no código Python para identificar vulnerabilidades.
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args:
+          - "-r"
+          - "."
+
+  # Yamllint: Valida arquivos YAML para garantir que estejam bem formatados.
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.32.0
+    hooks:
+      - id: yamllint
+
+  # Check JSON: Valida arquivos JSON para garantir que estejam bem formatados.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-json
+
+  # Pre-commit hooks: Conjunto de hooks úteis para garantir a consistência do código.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer

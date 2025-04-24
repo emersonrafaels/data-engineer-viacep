@@ -3,10 +3,9 @@ import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
 from pytest import raises
 
-from lambda_function import CEPS_VALIDOS, consultar_cep, lambda_handler
+from lambda_function import consultar_cep, lambda_handler
 
 # Adiciona o diretório raiz do projeto ao sys.path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -31,7 +30,8 @@ def test_consultar_cep_sucesso():
         response = consultar_cep(cep)
 
         # Verifica se a resposta está correta
-        assert response == mock_response
+        if response != mock_response:
+            raise AssertionError("Resposta não corresponde ao esperado.")
         mock_get.assert_called_once_with(
             f"https://viacep.com.br/ws/{cep}/json/", timeout=5
         )
@@ -43,16 +43,16 @@ def test_consultar_cep_erro_http():
 
     with patch("lambda_function.requests.get") as mock_get:
         # Configura o mock para levantar uma exceção HTTP
-        mock_get.side_effect = Exception("Erro na requisição")
+        mock_get.side_effect = ConnectionError("Erro na requisição")
 
         # Verifica se a exceção é levantada
-        with raises(Exception, match="Erro na requisição"):
+        with raises(ConnectionError, match="Erro na requisição"):
             consultar_cep(cep)
 
 
 def test_lambda_handler_sucesso():
     """Teste para verificar o comportamento do lambda_handler em caso de sucesso."""
-    cep = "01001000"
+
     mock_response = {
         "cep": "01001-000",
         "logradouro": "Praça da Sé",
@@ -66,13 +66,15 @@ def test_lambda_handler_sucesso():
         response = lambda_handler({}, {})
 
         # Verifica se o statusCode e o body estão corretos
-        assert response["statusCode"] == 200
-        assert json.loads(response["body"]) == mock_response
+        if response["statusCode"] != 200:
+            raise AssertionError("StatusCode não corresponde ao esperado.")
+        if json.loads(response["body"]) != mock_response:
+            raise AssertionError("Body não corresponde ao esperado.")
 
 
 def test_lambda_handler_cep_invalido():
     """Teste para verificar o comportamento do lambda_handler com um CEP inválido."""
-    cep = "01001000"
+
     mock_response = {"erro": True}
 
     with patch("lambda_function.consultar_cep", return_value=mock_response):
@@ -80,20 +82,23 @@ def test_lambda_handler_cep_invalido():
         response = lambda_handler({}, {})
 
         # Verifica se o statusCode e o body estão corretos
-        assert response["statusCode"] == 200
-        assert json.loads(response["body"]) == mock_response
+        if response["statusCode"] != 200:
+            raise AssertionError("StatusCode não corresponde ao esperado.")
+        if json.loads(response["body"]) != mock_response:
+            raise AssertionError("Body não corresponde ao esperado.")
 
 
 def test_lambda_handler_erro():
     """Teste para verificar o comportamento do lambda_handler em caso de erro."""
-    cep = "01001000"
 
     with patch(
-        "lambda_function.consultar_cep", side_effect=Exception("Erro inesperado")
+        "lambda_function.consultar_cep", side_effect=ValueError("Erro inesperado")
     ):
         # Chama o lambda_handler
         response = lambda_handler({}, {})
 
         # Verifica se o statusCode e o body estão corretos
-        assert response["statusCode"] == 500
-        assert json.loads(response["body"]) == {"erro": "Erro inesperado"}
+        if response["statusCode"] != 500:
+            raise AssertionError("StatusCode não corresponde ao esperado.")
+        if json.loads(response["body"]) != {"erro": "Erro inesperado"}:
+            raise AssertionError("Body não corresponde ao esperado.")

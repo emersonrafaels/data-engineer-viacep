@@ -50,7 +50,8 @@ def lambda_handler(event, context):
 
     Args:
         event (dict): Dados de entrada do evento (não utilizado neste exemplo).
-        context (object): Contexto de execução da função Lambda (não utilizado neste exemplo).
+        context (object): Contexto de execução da função
+        Lambda (não utilizado neste exemplo).
 
     Returns:
         dict: Resposta HTTP com os dados do CEP ou mensagem de erro.
