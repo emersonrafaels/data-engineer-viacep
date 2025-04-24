@@ -16,6 +16,7 @@ CEPS_VALIDOS = [
     "59010020",  # Natal
 ]
 
+
 def consultar_cep(cep):
     """
     Realiza a consulta de um CEP na API ViaCEP.
@@ -35,12 +36,12 @@ def consultar_cep(cep):
         return response.json()
     except requests.exceptions.RequestException as e:
         # Captura erros relacionados à requisição HTTP
-        logger.error(json.dumps({
-            "log_type": "erro_requisicao",
-            "mensagem": str(e),
-            "cep": cep
-        }), exc_info=True)
+        logger.error(
+            json.dumps({"log_type": "erro_requisicao", "mensagem": str(e), "cep": cep}),
+            exc_info=True,
+        )
         raise e
+
 
 def lambda_handler(event, context):
     """
@@ -62,37 +63,38 @@ def lambda_handler(event, context):
 
         # Verifica se o CEP é inválido (API retorna "erro" em caso de CEP inexistente)
         if "erro" in data:
-            logger.warning(json.dumps({
-                "log_type": "cep_invalido",
-                "cep": cep,
-                "mensagem": "CEP não encontrado"
-            }))
+            logger.warning(
+                json.dumps(
+                    {
+                        "log_type": "cep_invalido",
+                        "cep": cep,
+                        "mensagem": "CEP não encontrado",
+                    }
+                )
+            )
         else:
             # Loga os dados do CEP consultado
-            logger.info(json.dumps({
-                "log_type": "consulta_cep",
-                "cep": cep,
-                "localidade": data.get("localidade"),
-                "uf": data.get("uf"),
-                "bairro": data.get("bairro"),
-                "logradouro": data.get("logradouro")
-            }))
+            logger.info(
+                json.dumps(
+                    {
+                        "log_type": "consulta_cep",
+                        "cep": cep,
+                        "localidade": data.get("localidade"),
+                        "uf": data.get("uf"),
+                        "bairro": data.get("bairro"),
+                        "logradouro": data.get("logradouro"),
+                    }
+                )
+            )
 
         # Retorna os dados do CEP na resposta
-        return {
-            "statusCode": 200,
-            "body": json.dumps(data)
-        }
+        return {"statusCode": 200, "body": json.dumps(data)}
 
     except Exception as e:
         # Loga o erro e retorna uma mensagem de erro na resposta
-        logger.error(json.dumps({
-            "log_type": "erro",
-            "mensagem": str(e),
-            "cep": cep
-        }), exc_info=True)
+        logger.error(
+            json.dumps({"log_type": "erro", "mensagem": str(e), "cep": cep}),
+            exc_info=True,
+        )
 
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"erro": str(e)})
-        }
+        return {"statusCode": 500, "body": json.dumps({"erro": str(e)})}
